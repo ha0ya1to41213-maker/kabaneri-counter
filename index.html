@@ -1,1 +1,388 @@
 
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>カバネリ 海門決戦カウンター</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#f2f3f5;color:#222;font-family:-apple-system,BlinkMacSystemFont,"Hiragino Kaku Gothic ProN",sans-serif}
+.app{max-width:680px;margin:12px auto;padding:14px;background:#fff;border:1px solid #dedede;border-radius:18px}
+h1{font-size:21px;margin:6px 0 16px}
+h2{font-size:18px;margin:14px 0}
+h3{font-size:16px;margin:8px 0}
+p{margin:6px 0}
+.small{font-size:12px;color:#737373;line-height:1.5}
+.tabs{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px}
+.tab{background:#f2f3f5;color:#424750;border:0;border-radius:9px;padding:12px 2px;font-size:11px;font-weight:bold}
+.tab.active{background:#273445;color:white}
+.page{display:none}
+.page.active{display:block}
+hr{border:0;border-top:1px solid #e5e5e5;margin:18px 0}
+button{font:inherit;cursor:pointer;touch-action:manipulation}
+button:disabled{opacity:.4;cursor:default}
+.characters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:10px 0}
+.character{min-height:88px;background:#fff;border:2px solid var(--color);border-radius:13px;color:var(--color);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px}
+.character strong{font-size:18px}
+.character small{color:#737373}
+.character.active{background:var(--color);color:#fff}
+.character.active small{color:#fff}
+.condition-box{height:320px;background:#fafafa;border:1px solid #eee;border-radius:13px;padding:12px;display:flex;flex-direction:column;justify-content:center;gap:8px;overflow-y:auto}
+.empty{text-align:center;color:#737373}
+.empty .pointer{font-size:30px;margin-bottom:10px}
+.option{width:100%;background:#fff;border:1px solid #dedede;border-radius:10px;padding:13px 12px;display:flex;align-items:center;gap:9px;text-align:left}
+.option.active{background:#edf3fa;border:2px solid #427bd0;padding:12px 11px}
+.option .mark{color:#aaa;font-size:19px}
+.option.active .mark{color:#427bd0}
+.option .points{margin-left:auto;font-weight:bold}
+.primary{width:100%;border:0;border-radius:10px;background:#273445;color:#fff;padding:13px;font-weight:bold;margin-top:10px}
+.compound{background:#fff;border:1px solid #e5e5e5;border-radius:9px;padding:9px}
+.compound-top{display:flex;justify-content:space-between;font-weight:bold;margin-bottom:7px}
+.compound-buttons{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.compound-buttons button{padding:8px;border:1px solid #ddd;border-radius:8px;background:white}
+.compound-buttons button.active{background:#273445;color:white}
+.compound-total{display:flex;justify-content:space-between;font-weight:bold}
+.stats{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px}
+.stat{background:var(--color);color:#fff;border-radius:13px;padding:16px 6px;text-align:center;display:flex;flex-direction:column;gap:6px}
+.stat h3{font-size:18px;margin:0}
+.stat small{font-size:12px}
+.stat .big{font-size:30px;font-weight:bold}
+.stat .number{font-size:21px;font-weight:bold}
+.stat hr{width:100%;border-color:#ffffff55;margin:4px 0}
+.cz-buttons{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.cz-hit{background:var(--color);color:#fff;border:0;border-radius:12px;padding:15px 5px;display:flex;flex-direction:column;gap:6px;align-items:center;font-weight:bold}
+.cz-hit small{font-weight:normal}
+.history-toggle{display:flex;justify-content:space-between;width:100%;background:none;border:0;padding:0;font-size:16px;font-weight:bold;text-align:left}
+.history-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px}
+.history-card{border:1px solid #ddd;border-radius:10px;padding:12px}
+.history-card h3{font-size:14px}
+.history-line{display:flex;justify-content:space-between;margin:7px 0}
+.panel{background:#f5f6f8;border-radius:12px;padding:16px;margin:12px 0}
+.center{text-align:center}
+.big-number{font-size:34px;font-weight:bold;margin:12px}
+.controls{display:flex;align-items:center;gap:10px}
+.controls .label{flex:1}
+.controls button{width:39px;height:39px;background:#fff;border:1px solid #ddd;border-radius:9px;font-size:23px}
+.controls button.plus{background:#273445;color:white;border:0}
+.controls .count{min-width:34px;text-align:center;font-size:18px;font-weight:bold}
+.section-card{border:1px solid #e3e5e8;border-radius:12px;padding:13px;margin:10px 0}
+.counter-row{display:flex;align-items:center;gap:8px;margin:10px 0}
+.counter-row .name{flex:1;font-size:14px}
+.counter-row button{width:36px;height:36px;border:1px solid #ddd;border-radius:8px;background:#fff;font-size:20px}
+.counter-row button.plus{background:#273445;color:#fff;border:0}
+.counter-row .value{width:35px;text-align:center;font-weight:bold}
+input[type=number],textarea{width:100%;padding:11px;border:1px solid #ddd;border-radius:9px;font:inherit}
+input[type=checkbox],input[type=radio]{accent-color:#273445}
+.checkrow{display:block;padding:7px 0}
+table{width:100%;border-collapse:collapse;font-size:14px}
+td{padding:9px 3px;border-bottom:1px solid #eee}
+td:last-child{text-align:right;font-weight:bold}
+.danger{background:#c9443f;color:white}
+.outline-danger{background:#fff;color:#c9443f;border:1px solid #c9443f}
+.hidden{display:none!important}
+.note{font-size:12px;color:#737373;line-height:1.6;margin-top:14px}
+@media(max-width:360px){.app{padding:10px}.stat{padding:12px 3px}.stat .big{font-size:26px}.tab{font-size:10px}}
+</style>
+</head>
+<body>
+<main class="app">
+<h1>カバネリ 海門決戦カウンター</h1>
+<nav class="tabs">
+<button class="tab active" data-tab="chance">チャンス目</button>
+<button class="tab" data-tab="bell">下段ベル</button>
+<button class="tab" data-tab="cycle">周期結果</button>
+<button class="tab" data-tab="settings">設定・集計</button>
+</nav>
+
+<section id="chance" class="page active">
+<h2>チャンス目カウンター</h2>
+<h3>① チャンス目</h3>
+<p class="small">複合は該当する2種類を選択してください。</p>
+<div id="characters" class="characters"></div>
+<p class="small" id="selection">選択中：なし</p>
+<hr>
+<h3>② 成立時の状態</h3>
+<div id="conditions" class="condition-box">
+<div class="empty"><div class="pointer">☝</div>先にチャンス目を選択してください。</div>
+</div>
+<button id="add" class="primary" disabled>＋ カウントする</button>
+<hr>
+<h3>③ 現在のポイント・発光率</h3>
+<div id="stats" class="stats"></div>
+<p class="small">発光率＝下段 ÷ 上段 × 100。複合チャンス目と高確帯あり・発光中のチャンス目は上段・下段に含めません。</p>
+<hr>
+<h3>④ CZ当選</h3>
+<p class="small">当選したCZのポイントだけを記録して0に戻します。</p>
+<div id="cz-buttons" class="cz-buttons"></div>
+<hr>
+<button id="history-toggle" class="history-toggle">⑤ CZ当選履歴 <span id="history-arrow">⌄</span></button>
+<div id="history" class="history-grid hidden"></div>
+</section>
+
+<section id="bell" class="page">
+<h2>下段ベルカウンター</h2>
+<div class="panel center">
+<p class="small">下段ベル回数</p>
+<div id="bell-count" class="big-number">0</div>
+<div class="controls" style="justify-content:center">
+<button id="bell-minus">−</button>
+<button id="bell-plus" class="plus" style="width:auto;padding:0 20px;font-size:15px">＋ カウント</button>
+</div>
+</div>
+<h3>通常ゲーム数</h3>
+<div class="controls">
+<button id="games-minus">−</button>
+<input id="games-bell" type="number" min="0" inputmode="numeric" value="0">
+<button id="games-plus" class="plus">＋</button>
+</div>
+<p class="small">設定・集計タブと共通のゲーム数です。</p>
+<div class="panel center">
+<p class="small">下段ベル確率</p>
+<div id="bell-rate" class="big-number">—</div>
+<p id="bell-detail" class="small">0回 / 0G</p>
+</div>
+</section>
+
+<section id="cycle" class="page">
+<h2>周期結果</h2>
+<p class="small">各周期の結果を「＋」「−」で記録できます。</p>
+<div id="cycles"></div>
+<div class="panel">
+<h3>周期結果 合計</h3>
+<div id="cycle-totals" class="stats" style="text-align:center"></div>
+</div>
+</section>
+
+<section id="settings" class="page">
+<h2>設定・集計</h2>
+<h3>通常ゲーム数</h3>
+<input id="games-settings" type="number" min="0" inputmode="numeric" value="0">
+<hr>
+<h3>ボーナス回数</h3>
+<div id="bonuses"></div>
+<hr>
+<h3>CZ 突入・突破回数</h3>
+<div id="cz-counts"></div>
+<hr>
+<h3>設定示唆メモ</h3>
+<p class="small">確認した演出をチェックして記録できます。設定判別は自動では行いません。</p>
+<div id="hints"></div>
+<h3>トロフィー</h3>
+<div id="trophies"></div>
+<h3>自由メモ</h3>
+<textarea id="memo" rows="3" placeholder="終了画面・演出などを記録"></textarea>
+<hr>
+<h3>全体集計</h3>
+<table id="summary"></table>
+<hr>
+<h3>データリセット</h3>
+<button id="reset" class="primary outline-danger">全データリセット</button>
+</section>
+</main>
+<p class="note" style="max-width:680px;margin:14px auto;padding:0 14px">※ カウントはこの端末のブラウザ内に自動保存されます。ブラウザのデータ削除やプライベートブラウズでは消える場合があります。</p>
+
+<script>
+"use strict";
+const N=["無名","生駒","カバネ"];
+const COLORS={"無名":"#c9443f","生駒":"#4b9961","カバネ":"#427bd0"};
+const CYCLE_KEYS=["駿城","ST","スルー"];
+const HINTS=["偶数設定示唆","奇数設定示唆","高設定示唆","設定2以上示唆","設定4以上示唆","設定5以上示唆","設定6示唆"];
+const TROPHIES=["なし","銅","銀","金","キリン柄","虹"];
+const KEY="kabaneri-counter-v1";
+
+function defaults(){
+return {
+selected:[],condition:null,bands:{"無名":null,"生駒":null,"カバネ":null},
+data:Object.fromEntries(N.map(n=>[n,{pt:0,upper:0,lower:0}])),
+history:{"無名":[],"生駒":[]},expanded:false,
+games:0,bells:0,
+cycles:Array.from({length:6},()=>({"駿城":0,"ST":0,"スルー":0})),
+bonuses:{"駿城":0,"エピソードボーナス":0},
+cz:{"無名":{entry:0,clear:0},"生駒":{entry:0,clear:0},"銅藍":{entry:0,clear:0}},
+hints:[],trophy:"なし",memo:""
+};
+}
+let s=defaults();
+try{
+const saved=JSON.parse(localStorage.getItem(KEY));
+if(saved&&typeof saved==="object"){
+s={...defaults(),...saved};
+}
+}catch(e){}
+
+const $=id=>document.getElementById(id);
+const esc=v=>String(v).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+function save(){
+try{localStorage.setItem(KEY,JSON.stringify(s));}catch(e){}
+}
+function update(){save();render();}
+function resetInput(){
+s.selected=[];s.condition=null;
+s.bands={"無名":null,"生駒":null,"カバネ":null};
+}
+function ready(){
+return s.selected.length===1?s.condition!==null:
+s.selected.length===2&&s.selected.every(n=>s.bands[n]!==null);
+}
+function toggle(n){
+if(s.selected.includes(n)){
+s.selected=s.selected.filter(x=>x!==n);
+}else if(s.selected.length<2){
+s.selected.push(n);
+}
+s.condition=null;
+s.bands={"無名":null,"生駒":null,"カバネ":null};
+update();
+}
+function countChance(){
+if(!ready())return;
+if(s.selected.length===2){
+s.selected.forEach(n=>s.data[n].pt+=s.bands[n]?30:15);
+}else{
+const n=s.selected[0],c=s.condition;
+s.data[n].pt+=(c==="glow"||c==="high")?15:1;
+if(c==="normal"||c==="glow")s.data[n].upper++;
+if(c==="glow")s.data[n].lower++;
+}
+resetInput();update();
+}
+function hit(n){
+s.history[n].push({no:s.history[n].length+1,pt:s.data[n].pt});
+s.data[n].pt=0;
+update();
+}
+function renderChance(){
+$("characters").innerHTML=N.map(n=>{
+const on=s.selected.includes(n);
+return `<button class="character ${on?"active":""}" style="--color:${COLORS[n]}" data-char="${n}"><strong>${n}</strong><small>${on?"選択中":"選択"}</small></button>`;
+}).join("");
+$("selection").textContent="選択中："+(s.selected.length?s.selected.join("・"):"なし");
+const box=$("conditions");
+if(!s.selected.length){
+box.innerHTML='<div class="empty"><div class="pointer">☝</div>先にチャンス目を選択してください。</div>';
+}else if(s.selected.length===2){
+let total=0;
+box.innerHTML='<p style="text-align:center;font-weight:bold">複合チャンス目（ポイント加算のみ）</p><p class="small" style="text-align:center">それぞれのキャラの高確帯を選択してください。</p>'+
+s.selected.map(n=>{
+const b=s.bands[n],pt=b===null?"—pt":(b?30:15)+"pt";
+if(b!==null)total+=b?30:15;
+return `<div class="compound"><div class="compound-top"><span style="color:${COLORS[n]}">${n}</span><span>${pt}</span></div><div class="compound-buttons"><button data-band="${n}" data-value="false" class="${b===false?"active":""}">なし</button><button data-band="${n}" data-value="true" class="${b===true?"active":""}">あり</button></div></div>`;
+}).join("")+
+`<div class="compound-total"><span>合計</span><span>${total}pt</span></div><p class="small">複合チャンス目は上段・下段・発光率には加算されません。</p>`;
+}else{
+const opts=[
+["normal","発光なし",1],
+["glow","発光した",15],
+["during","発光中",1],
+["high","高確帯あり",15]
+];
+box.innerHTML=opts.map(([id,label,pt])=>{
+const on=s.condition===id;
+return `<button class="option ${on?"active":""}" data-condition="${id}"><span class="mark">${on?"◉":"◯"}</span><span>${label}</span><span class="points">${pt}pt</span></button>`;
+}).join("");
+}
+$("add").disabled=!ready();
+$("stats").innerHTML=N.map(n=>{
+const d=s.data[n];
+const rate=d.upper?(d.lower/d.upper*100).toFixed(1)+"%":"—";
+return `<div class="stat" style="--color:${COLORS[n]}"><h3>${n}</h3><small>ポイント</small><div class="big">${d.pt}</div><hr><small>上段</small><div class="number">${d.upper}</div><small>下段</small><div class="number">${d.lower}</div><hr><small>発光率</small><div class="number">${rate}</div></div>`;
+}).join("");
+$("cz-buttons").innerHTML=["無名","生駒"].map(n=>`<button class="cz-hit" data-hit="${n}" style="--color:${COLORS[n]}"><span>${n}CZ当選</span><small>現在 ${s.data[n].pt}pt</small></button>`).join("");
+$("history").classList.toggle("hidden",!s.expanded);
+$("history-arrow").textContent=s.expanded?"⌃":"⌄";
+$("history").innerHTML=["無名","生駒"].map(n=>`<div class="history-card"><h3 style="color:${COLORS[n]}">${n}CZ履歴</h3>${s.history[n].length?s.history[n].map(h=>`<div class="history-line"><span>#${h.no}</span><strong>${h.pt}pt</strong></div>`).join(""):'<p class="small">履歴なし</p>'}</div>`).join("");
+}
+function adjustGames(d){s.games=Math.max(0,s.games+d);update();}
+function renderBell(){
+$("bell-count").textContent=s.bells;
+$("games-bell").value=s.games;
+$("bell-rate").textContent=s.bells>0&&s.games>0?"1 / "+(s.games/s.bells).toFixed(2):"—";
+$("bell-detail").textContent=s.bells+"回 / "+s.games+"G";
+}
+function counterRow(name,value,kind,id,sub=""){
+return `<div class="counter-row"><span class="name">${name}</span><button data-adjust="${kind}" data-id="${id}" data-sub="${sub}" data-delta="-1">−</button><span class="value">${value}</span><button class="plus" data-adjust="${kind}" data-id="${id}" data-sub="${sub}" data-delta="1">＋</button></div>`;
+}
+function renderCycles(){
+$("cycles").innerHTML=s.cycles.map((c,i)=>`<div class="section-card"><h3>${i+1}周期目</h3>${CYCLE_KEYS.map(k=>counterRow(k,c[k],"cycle",i,k)).join("")}</div>`).join("");
+$("cycle-totals").innerHTML=CYCLE_KEYS.map(k=>`<div><p class="small">${k}</p><h2>${s.cycles.reduce((a,c)=>a+c[k],0)}</h2></div>`).join("");
+}
+function renderSettings(){
+$("games-settings").value=s.games;
+$("bonuses").innerHTML=Object.keys(s.bonuses).map(k=>counterRow(k,s.bonuses[k],"bonus",k)).join("");
+$("cz-counts").innerHTML=Object.keys(s.cz).map(n=>`<div class="section-card"><h3>${n}</h3>${counterRow("突入",s.cz[n].entry,"cz",n,"entry")}${counterRow("突破",s.cz[n].clear,"cz",n,"clear")}</div>`).join("");
+$("hints").innerHTML=HINTS.map(h=>`<label class="checkrow"><input type="checkbox" data-hint="${h}" ${s.hints.includes(h)?"checked":""}> ${h}</label>`).join("");
+$("trophies").innerHTML=TROPHIES.map(t=>`<label class="checkrow"><input type="radio" name="trophy" value="${t}" ${s.trophy===t?"checked":""}> ${t}</label>`).join("");
+$("memo").value=s.memo;
+const rows=[
+["通常ゲーム数",s.games+"G"],
+["下段ベル",s.bells+"回"],
+["下段ベル確率",s.bells>0&&s.games>0?"1/"+(s.games/s.bells).toFixed(2):"—"],
+["駿城ボーナス",s.bonuses["駿城"]+"回"],
+["エピソードボーナス",s.bonuses["エピソードボーナス"]+"回"],
+...CYCLE_KEYS.map(k=>["周期結果・"+k,s.cycles.reduce((a,c)=>a+c[k],0)+"回"]),
+...Object.keys(s.cz).map(n=>[n+"CZ 突入 / 突破",s.cz[n].entry+" / "+s.cz[n].clear])
+];
+$("summary").innerHTML=rows.map(([a,b])=>`<tr><td>${esc(a)}</td><td>${esc(b)}</td></tr>`).join("");
+}
+function render(){
+renderChance();renderBell();renderCycles();renderSettings();
+}
+document.addEventListener("click",e=>{
+const tab=e.target.closest("[data-tab]");
+if(tab){
+document.querySelectorAll(".tab").forEach(x=>x.classList.toggle("active",x.dataset.tab===tab.dataset.tab));
+document.querySelectorAll(".page").forEach(x=>x.classList.toggle("active",x.id===tab.dataset.tab));
+return;
+}
+const char=e.target.closest("[data-char]");
+if(char){toggle(char.dataset.char);return;}
+const cond=e.target.closest("[data-condition]");
+if(cond){s.condition=cond.dataset.condition;update();return;}
+const band=e.target.closest("[data-band]");
+if(band){s.bands[band.dataset.band]=band.dataset.value==="true";update();return;}
+const hitButton=e.target.closest("[data-hit]");
+if(hitButton){hit(hitButton.dataset.hit);return;}
+const adj=e.target.closest("[data-adjust]");
+if(adj){
+const d=Number(adj.dataset.delta),id=adj.dataset.id,sub=adj.dataset.sub;
+if(adj.dataset.adjust==="cycle"){
+s.cycles[Number(id)][sub]=Math.max(0,s.cycles[Number(id)][sub]+d);
+}else if(adj.dataset.adjust==="bonus"){
+s.bonuses[id]=Math.max(0,s.bonuses[id]+d);
+}else if(adj.dataset.adjust==="cz"){
+s.cz[id][sub]=Math.max(0,s.cz[id][sub]+d);
+}
+update();return;
+}
+});
+$("add").addEventListener("click",countChance);
+$("history-toggle").addEventListener("click",()=>{s.expanded=!s.expanded;update();});
+$("bell-plus").addEventListener("click",()=>{s.bells++;update();});
+$("bell-minus").addEventListener("click",()=>{s.bells=Math.max(0,s.bells-1);update();});
+$("games-plus").addEventListener("click",()=>adjustGames(1));
+$("games-minus").addEventListener("click",()=>adjustGames(-1));
+["games-bell","games-settings"].forEach(id=>{
+$(id).addEventListener("change",e=>{
+s.games=Math.max(0,Math.floor(Number(e.target.value)||0));update();
+});
+});
+$("hints").addEventListener("change",e=>{
+if(!e.target.matches("[data-hint]"))return;
+const h=e.target.dataset.hint;
+s.hints=e.target.checked?[...new Set([...s.hints,h])]:s.hints.filter(x=>x!==h);
+save();
+});
+$("trophies").addEventListener("change",e=>{
+if(e.target.name==="trophy"){s.trophy=e.target.value;save();}
+});
+$("memo").addEventListener("input",e=>{s.memo=e.target.value;save();});
+$("reset").addEventListener("click",()=>{
+if(!confirm("すべてのカウントと履歴を削除しますか？"))return;
+s=defaults();update();
+});
+render();
+</script>
+</body>
+</html>
+
