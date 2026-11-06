@@ -119,14 +119,6 @@ td:last-child{text-align:right;font-weight:bold}
 <button id="history-toggle" class="history-toggle">⑤ CZ当選履歴 <span id="history-arrow">⌄</span></button>
 <div id="history" class="history-grid hidden"></div>
 </section>
-
-<hr>
-<h3>⑥ 全データリセット</h3>
-<p class="small">すべてのカウント・履歴・メモを初期化します。</p>
-<button class="primary outline-danger" onclick="document.getElementById('reset').click()">
-  全データリセット
-</button>
-
 <section id="bell" class="page">
 <h2>下段ベルカウンター</h2>
 <div class="panel center">
@@ -182,9 +174,14 @@ td:last-child{text-align:right;font-weight:bold}
 <hr>
 <h3>全体集計</h3>
 <table id="summary"></table>
-<hr>
-<h3>データリセット</h3>
-<button id="reset" class="primary outline-danger">全データリセット</button>
+</section>
+<section id="global-reset">
+  <hr>
+  <h3>全データリセット</h3>
+  <p class="small">すべてのカウント・履歴・メモを初期化します。</p>
+  <button id="reset" class="primary outline-danger">
+    全データリセット
+  </button>
 </section>
 </main>
 <p class="note" style="max-width:680px;margin:14px auto;padding:0 14px">※ カウントはこの端末のブラウザ内に自動保存されます。ブラウザのデータ削除やプライベートブラウズでは消える場合があります。</p>
